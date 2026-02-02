@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: pki
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/pki_db
+    username: abel
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+logging:
+  level:
+    com.wingersoft.pki: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+  #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  #    org.hibernate: DEBUG
+
+security:
+  client-cert:
+    path: classpath:security/server1_public_key.cer
+  server-cert:
+    path: classpath:security/server2_public_key.cer
+
+#  truststore:
+#    path: classpath:security/key2truststore.p12
+#    password: TESTKEYTWO
+#    alias: client
+
+  keystore:
+    path: classpath:security/server2_private_key.p12
+    password: TESTKEYTWO
+    alias: testkeytwo.com
