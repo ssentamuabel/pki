@@ -13,6 +13,7 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 
 
 @Configuration
@@ -73,6 +74,51 @@ public class KeyConfig {
 
         return (PrivateKey) key;
     }
+
+
+    @Bean
+    public String serverPublicKeyPem() throws Exception {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+
+        try (InputStream in = serverCert.getInputStream()) {
+            X509Certificate cert =
+                    (X509Certificate) factory.generateCertificate(in);
+
+            PublicKey publicKey = cert.getPublicKey();
+            byte[] spkiBytes = publicKey.getEncoded();
+
+            String base64 = Base64.getMimeEncoder(64, new byte[]{'\n'})
+                    .encodeToString(spkiBytes);
+
+            return "-----BEGIN PUBLIC KEY-----\n"
+                    + base64
+                    + "\n-----END PUBLIC KEY-----";
+        }
+    }
+
+
+
+//    @Bean
+//    public String serverPublicCertPem() throws Exception {
+//        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+//
+//        try (InputStream in = serverCert.getInputStream()) {
+//            X509Certificate certificate =
+//                    (X509Certificate) factory.generateCertificate(in);
+//
+//            byte[] derBytes = certificate.getEncoded();
+//
+//            String base64 = Base64.getMimeEncoder(64, new byte[]{'\n'})
+//                    .encodeToString(derBytes);
+//
+//            return "-----BEGIN CERTIFICATE-----\n"
+//                    + base64
+//                    + "\n-----END CERTIFICATE-----";
+//        }
+//    }
+
+
+
 
 
 }

@@ -40,4 +40,16 @@ public class BookController {
         EncryptedPayload encrypted = cryptoService.encrypt(data);
         return ResponseEntity.ok(encrypted);
     }
+
+    @PostMapping("bkDecrypt")
+    public ResponseEntity<Book> decryptDate(@RequestBody EncryptedPayload payload) throws Exception {
+
+        Book book = cryptoService.decryptAndVerify(
+                payload, Book.class
+        );
+
+        return ResponseEntity.ok(book);
+    }
+
+
 }

@@ -29,6 +29,49 @@ public class CryptoService {
     private PrivateKey serverPrivateKey;
 
 
+    public <T> T decryptAndVerify(EncryptedPayload payload, Class<T> targetType) throws Exception{
+
+        // 1. Base64 decode
+        byte[] encryptedBytes = Base64.getDecoder()
+                .decode(payload.getEncryptedData());
+
+        byte[] signatureBytes = Base64.getDecoder()
+                .decode(payload.getSignature());
+
+        // 2. Verify signature before decryption
+        Signature verifier  = Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(clientPublicKey);
+
+        verifier.update(encryptedBytes);
+
+        boolean isValid = verifier.verify(signatureBytes);
+
+        if (isValid){
+            throw new SecurityException("Invalid Signature");
+        }
+
+        // 3. decrypt with server private key
+        OAEPParameterSpec oaepParams = new OAEPParameterSpec(
+                "SHA-256",
+                "MGF1",
+                MGF1ParameterSpec.SHA256,
+                PSource.PSpecified.DEFAULT
+        );
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
+        cipher.init(Cipher.DECRYPT_MODE, serverPrivateKey, oaepParams);
+
+        byte[] decryptedBytes  = cipher.doFinal(encryptedBytes);
+
+        // 4. Convert JSON -> Object
+        String json = new String(decryptedBytes, StandardCharsets.UTF_8);
+        ObjectMapper mapper = new ObjectMapper();
+
+        return mapper.readValue(json, targetType);
+
+    }
+
+
     public EncryptedPayload encrypt(Object object) throws Exception{
 
         // 1. Convert object to JSON
