@@ -40,7 +40,7 @@ public class CryptoService {
 
         // 2. Verify signature before decryption
         Signature verifier  = Signature.getInstance("SHA256withRSA");
-        verifier.initVerify(clientPublicKey);
+        verifier.initVerify(serverPublicKey);
 
         verifier.update(encryptedBytes);
 
